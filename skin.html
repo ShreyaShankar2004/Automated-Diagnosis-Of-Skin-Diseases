@@ -1,0 +1,726 @@
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>AI-DERM | Advanced Skin Disease Detection</title>
+  
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+  
+    <!-- Font Awesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+  
+    <!-- 🔗 Custom Styles -->
+    <link rel="stylesheet" href="style.css" />
+  </head>
+<body class="min-h-screen flex flex-col">
+  <!-- Navigation -->
+    <nav class="bg-indigo-600 shadow-sm sticky top-0 z-50">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex items-center justify-between h-16">
+          <!-- Logo -->
+          <div style="height: 45px; width: 170px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.5); overflow: hidden;">
+  <button onclick="window.location.href='skin.html'" class="w-full h-full p-0 m-0 bg-transparent border-none ">
+    <img 
+      src="wlogo.jpg" 
+      alt="AI-DERM Logo"
+      style="height: 100%; width: 500px; object-fit: contain;"
+    />
+  </button>
+</div>
+
+          
+          
+          <!-- Navigation Links -->
+          <div class="hidden md:flex md:items-center md:justify-center md:space-x-8 w-full">
+            <a href="#home" class="nav-link text-white text-lg font-semibold hover:text-gray-300 px-8 py-2 rounded-md">Home</a>
+            <a href="#features" class="nav-link text-white text-lg font-semibold hover:text-gray-300 px-8 py-2 rounded-md">Features</a>
+            <a href="#about" class="nav-link text-white text-lg font-semibold hover:text-gray-300 px-10 py-2 rounded-md">About</a>
+            <a href="#contact" class="nav-link text-white text-lg font-semibold hover:text-gray-300 px-8 py-2 rounded-md">Contact</a>
+
+      <div class="flex space-x-8">
+<div class="flex space-x-8">
+  <button 
+    onclick="window.location.href='http://127.0.0.1:5000/'" 
+    class="inline-flex items-center px-4 py-2 ml-12 rounded-md bg-gray-400 text-white text-lg font-semibold hover:bg-indigo-300 shadow transition-all">
+    Upload Image
+  </button>
+</div>
+
+
+
+      </div>
+
+      <!-- Logout Button aligned to right -->
+      <div class="ml-auto">
+        <button onclick="window.location.href='login.html'" class="p-0 ml-12 bg-transparent border-none">
+          <img 
+            src="log4.png" 
+            alt="Power Icon" 
+            class="w-10 h-9 transition-transform duration-300 hover:scale-110 hover:drop-shadow-lg" 
+          />
+        </button>
+      </div>
+
+        </div>
+      </div>
+    </nav>
+  </body>
+  
+
+
+  <!-- Unified Auth Modal (Login/Signup Switchable) -->
+<div id="auth-modal" class="hidden fixed z-50 inset-0 overflow-y-auto" role="dialog" aria-modal="true">
+    <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+      <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" onclick="hideAuthModal()" aria-hidden="true"></div>
+      <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+      <div id="modal-content" class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all duration-500 ease-in-out sm:align-middle sm:max-w-lg sm:w-full">
+        
+        <!-- LOGIN FORM -->
+        <div id="login-form" class="p-6 transition-opacity duration-500 ease-in-out">
+          <h3 class="text-lg font-medium text-gray-900">Login to AI-DERM</h3>
+          <p class="text-sm text-gray-500 mb-4">Welcome back! Please login.</p>
+          <input type="email" id="login-email" placeholder="Email" class="w-full mb-3 px-4 py-2 border rounded-md focus:ring-indigo-500 focus:border-indigo-500"/>
+          <input type="password" id="login-password" placeholder="Password" class="w-full mb-3 px-4 py-2 border rounded-md focus:ring-indigo-500 focus:border-indigo-500"/>
+          <button onclick="handleLogin()" class="w-full bg-indigo-600 text-white py-2 rounded-md hover:bg-indigo-700 transition-all">Login</button>
+          <p class="text-sm text-gray-500 mt-4 text-center">Don't have an account? <button onclick="switchToSignup()" class="text-indigo-600 hover:underline">Sign up</button></p>
+        </div>
+  
+        <!-- SIGNUP FORM -->
+        <div id="signup-form" class="p-6 bg-indigo-50 hidden transition-opacity duration-500 ease-in-out">
+          <h3 class="text-lg font-medium text-indigo-900">Sign Up for AI-DERM</h3>
+          <p class="text-sm text-indigo-600 mb-4">Create a new account.</p>
+          <input type="email" id="signup-email" placeholder="Email" class="w-full mb-3 px-4 py-2 border rounded-md focus:ring-purple-500 focus:border-purple-500"/>
+          <input type="password" id="signup-password" placeholder="Password (min 6 characters)" class="w-full mb-3 px-4 py-2 border rounded-md focus:ring-purple-500 focus:border-purple-500"/>
+          <button onclick="handleSignup()" class="w-full bg-indigo-600 text-white py-2 rounded-md hover:bg-indigo-900 transition-all">Sign Up</button>
+          <p class="text-sm text-indigo-600 mt-4 text-center">Already have an account? <button onclick="switchToLogin()" class="text-purple-700 hover:underline">Login</button></p>
+        </div>
+  
+      </div>
+    </div>
+  </div>
+  
+
+  <!-- Your Main Content Goes Here -->
+    <!-- Main Content -->
+    <main class="flex-grow bg-gray-100" id="app">
+        <!-- Home Page -->
+        <section id="home-page" class="animate-fade-in">
+            <!-- Hero Section -->
+            <div class="hero py-16">
+                <div class="max-w-7xl mx-auto  px-4 sm:px-6 lg:px-8">
+                    <div class="lg:grid lg:grid-cols-12 lg:gap-8">
+                        <div class="sm:text-center md:max-w-2xl md:mx-auto lg:col-span-6 lg:text-left">
+                            <h1 class="text-4xl tracking-tight font-extrabold text-gray-900 sm:text-5xl md:text-6xl">
+                                <span class="block">Advanced Skin</span>
+                                <span class="block text-indigo-600">Disease Detection</span>
+                            </h1>
+                            <p class="mt-3 text-base text-gray-500 sm:mt-5 sm:text-lg sm:max-w-xl sm:mx-auto md:mt-5 md:text-xl lg:mx-0">
+                                AI-powered dermatological analysis for accurate, fast, and reliable skin disease detection and diagnosis.
+                            </p>
+                            <div class="mt-8 sm:max-w-lg sm:mx-auto sm:text-center lg:text-left lg:mx-0">
+                                <div class="mt-5 sm:mt-8 sm:flex sm:justify-center lg:justify-start">
+                                    <div class="rounded-md shadow">
+                                        <button onclick="showUploadModal()" class="w-full flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 md:py-4 md:text-lg md:px-10 transition-all">
+                                            Get Started
+                                        </button>
+                                    </div>
+                                    <div class="mt-3 sm:mt-0 sm:ml-3">
+                                        <button onclick="location.href='#features'" class="w-full flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-md text-indigo-700 bg-indigo-100 hover:bg-indigo-200 md:py-4 md:text-lg md:px-10 transition-all">
+                                            Learn more
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                             <!-- Image Right Side -->
+                             <div class="mt-12 lg:mt-0 lg:col-span-6 flex justify-center items-center">
+                              <div class="w-full h-full rounded-lg shadow-lg">
+                                <img src="skind2.jpg" alt="Skin analysis image" class="w-full h-full object-cover rounded-lg">
+                              </div>
+                            </div>                     
+                    </div>
+                </div>
+            </div>
+
+            <!-- Stats Section -->
+            <div class="bg-indigo-50 py-12">
+                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div class="lg:text-center">
+                        <h2 class="text-base text-indigo-600 font-semibold tracking-wide uppercase">Trusted Technology</h2>
+                        <p class="mt-2 text-3xl leading-8 font-extrabold tracking-tight text-gray-900 sm:text-4xl">
+                            Clinically Validated Results
+                        </p>
+                    </div>
+            
+                    <div class="mt-10">
+                        <div class="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-4">
+                            <div class="bg-white py-10 px-6 text-center rounded-lg shadow-sm">
+                                <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-md bg-indigo-500 text-white">
+                                    <i class="fas fa-check-circle text-xl"></i>
+                                </div>
+                                <h3 class="mt-4 text-lg font-medium text-gray-900">95% Accuracy</h3>
+                                <p class="mt-2 text-base text-gray-500">
+                                    Highest accuracy in dermatological image recognition
+                                </p>
+                            </div>
+            
+                            <div class="bg-white py-10 px-6 text-center rounded-lg shadow-sm">
+                                <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-md bg-indigo-500 text-white">
+                                    <i class="fas fa-bolt text-xl"></i>
+                                </div>
+                                <h3 class="mt-4 text-lg font-medium text-gray-900">Instant Results</h3>
+                                <p class="mt-2 text-base text-gray-500">
+                                    Get detailed analysis in under 2 minutes
+                                </p>
+                            </div>
+            
+                            <div class="bg-white py-10 px-6 text-center rounded-lg shadow-sm">
+                                <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-md bg-indigo-500 text-white">
+                                    <i class="fas fa-shield-alt text-xl"></i>
+                                </div>
+                                <h3 class="mt-4 text-lg font-medium text-gray-900">Secure</h3>
+                                <p class="mt-2 text-base text-gray-500">
+                                    HIPAA compliant data security
+                                </p>
+                            </div>
+            
+                            <div class="bg-white py-10 px-6 text-center rounded-lg shadow-sm">
+                                <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-md bg-indigo-500 text-white">
+                                    <i class="fas fa-user-md text-xl"></i>
+                                </div>
+                                <h3 class="mt-4 text-lg font-medium text-gray-900">Expert Approved</h3>
+                                <p class="mt-2 text-base text-gray-500">
+                                    Developed with board-certified dermatologists
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Features Section -->
+            <section id="features" class="py-12 bg-gray-100">
+                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div class="lg:text-center">
+                        <h2 class="text-base text-indigo-600 font-semibold tracking-wide uppercase">Features</h2>
+                        <p class="mt-2 text-3xl leading-8 font-extrabold tracking-tight text-gray-900 sm:text-4xl">
+                            Advanced Diagnostic Capabilities
+                        </p>
+                        <p class="mt-4 max-w-2xl text-xl text-gray-500 lg:mx-auto">
+                            Our AI model is trained to detect over 150 different skin conditions with clinical accuracy.
+                        </p>
+                    </div>
+            
+                    <div class="mt-10">
+                        <div class="space-y-10 md:space-y-0 md:grid md:grid-cols-2 md:gap-x-8 md:gap-y-10">
+                            <div class="feature-card relative bg-gray-50 p-6 rounded-lg">
+                                <div class="flex">
+                                    <div class="flex-shrink-0">
+                                        <div class="flex items-center justify-center h-12 w-12 rounded-md bg-indigo-500 text-white">
+                                            <i class="fas fa-search-plus text-xl"></i>
+                                        </div>
+                                    </div>
+                                    <div class="ml-4">
+                                        <h3 class="text-lg leading-6 font-medium text-gray-900">Comprehensive Analysis</h3>
+                                        <p class="mt-2 text-base text-gray-500">
+                                            Get detailed analysis including disease probability, similar images, and potential treatment options.
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+            
+                            <div class="feature-card relative bg-gray-50 p-6 rounded-lg">
+                                <div class="flex">
+                                    <div class="flex-shrink-0">
+                                        <div class="flex items-center justify-center h-12 w-12 rounded-md bg-indigo-500 text-white">
+                                            <i class="fas fa-chart-line text-xl"></i>
+                                        </div>
+                                    </div>
+                                    <div class="ml-4">
+                                        <h3 class="text-lg leading-6 font-medium text-gray-900">Progress Tracking</h3>
+                                        <p class="mt-2 text-base text-gray-500">
+                                            Track changes in your skin condition over time with our timeline feature.
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+            
+                            <div class="feature-card relative bg-gray-50 p-6 rounded-lg">
+                                <div class="flex">
+                                    <div class="flex-shrink-0">
+                                        <div class="flex items-center justify-center h-12 w-12 rounded-md bg-indigo-500 text-white">
+                                            <i class="fas fa-globe-americas text-xl"></i>
+                                        </div>
+                                    </div>
+                                    <div class="ml-4">
+                                        <h3 class="text-lg leading-6 font-medium text-gray-900">Global Database</h3>
+                                        <p class="mt-2 text-base text-gray-500">
+                                            Our AI learns from over 500,000 dermatological images across all skin types.
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+            
+                            <div class="feature-card relative bg-gray-50 p-6 rounded-lg">
+                                <div class="flex">
+                                    <div class="flex-shrink-0">
+                                        <div class="flex items-center justify-center h-12 w-12 rounded-md bg-indigo-500 text-white">
+                                            <i class="fas fa-stethoscope text-xl"></i>
+                                        </div>
+                                    </div>
+                                    <div class="ml-4">
+                                        <h3 class="text-lg leading-6 font-medium text-gray-900">Clinical Insights</h3>
+                                        <p class="mt-2 text-base text-gray-500">
+                                            Receive explanations of medical terms and actionable health recommendations.
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- How It Works Section -->
+            <section class="py-12 bg-indigo-50">
+                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div class="lg:text-center">
+                        <h2 class="text-base text-indigo-600 font-semibold tracking-wide uppercase">How It Works</h2>
+                        <p class="mt-2 text-3xl leading-8 font-extrabold tracking-tight text-gray-900 sm:text-4xl">
+                            Simple and Straightforward
+                        </p>
+                    </div>
+            
+                    <div class="mt-10">
+                        <div class="relative">
+                            <div class="absolute left-1/2 transform -translate-x-1/2 h-full w-0.5 bg-indigo-200 hidden md:block"></div>
+                            
+                            <div class="space-y-10 md:space-y-0">
+                                <div class="relative flex flex-col md:flex-row items-center">
+                                    <div class="flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-md bg-indigo-500 text-white font-bold text-xl md:mr-6">
+                                        1
+                                    </div>
+                                    <div class="flex-grow mt-5 md:mt-0 px-6 py-4 bg-white rounded-lg shadow-sm">
+                                        <h3 class="text-lg font-medium text-gray-900">Upload Your Image</h3>
+                                        <p class="mt-2 text-base text-gray-600">
+                                            Simply upload a clear photo of the skin area you're concerned about. Our system accepts JPG, PNG formats.
+                                        </p>
+                                    </div>
+                                </div>
+            
+                                <div class="relative flex flex-col md:flex-row items-center">
+                                    <div class="flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-md bg-indigo-500 text-white font-bold text-xl md:mr-6">
+                                        2
+                                    </div>
+                                    <div class="flex-grow mt-5 md:mt-0 px-6 py-4 bg-white rounded-lg shadow-sm">
+                                        <h3 class="text-lg font-medium text-gray-900">AI Analysis</h3>
+                                        <p class="mt-2 text-base text-gray-600">
+                                            Our advanced neural network analyzes the image, comparing it to thousands of clinical cases.
+                                        </p>
+                                    </div>
+                                </div>
+            
+                                <div class="relative flex flex-col md:flex-row items-center">
+                                    <div class="flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-md bg-indigo-500 text-white font-bold text-xl md:mr-6">
+                                        3
+                                    </div>
+                                    <div class="flex-grow mt-5 md:mt-0 px-6 py-4 bg-white rounded-lg shadow-sm">
+                                        <h3 class="text-lg font-medium text-gray-900">Receive Results</h3>
+                                        <p class="mt-2 text-base text-gray-600">
+                                            Get an easy-to-understand report with potential conditions, confidence levels, and next steps.
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </section>
+
+        <!-- About Page -->
+<section id="about-page" class="hidden py-12 animate-fade-in">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="lg:text-center">
+        <h2 class="text-base text-indigo-600 font-semibold tracking-wide uppercase">About Us</h2>
+        <p class="mt-2 text-3xl leading-8 font-extrabold tracking-tight text-gray-900 sm:text-4xl">
+          Our Mission
+        </p>
+      </div>
+  
+      <div class="mt-10">
+        <div class="bg-white overflow-hidden shadow rounded-lg">
+          <div class="px-4 py-5 sm:p-6">
+            <div class="flex flex-col md:flex-row">
+              <div class="md:w-1/2 md:pr-8">
+                <h3 class="text-xl font-semibold text-gray-900">Bridging AI with Indian Dermatology</h3>
+                <p class="mt-2 text-gray-600">
+                  AI-DERM India was established in 2021 by a collective of Indian dermatologists and AI engineers from premier institutes like IIT Bombay and AIIMS Delhi. We aim to make quality skin consultations affordable and accessible across every corner of India.
+                </p>
+                <p class="mt-4 text-gray-600">
+                  Our goal is to empower citizens from metros to rural villages with instant, trustworthy skin analysis using AI and mobile technology.
+                </p>
+              </div>
+              <div class="md:w-1/2 mt-6 md:mt-0">
+                <img src="doc1.jpg" alt="Indian medical team and tech researchers" class="w-full rounded-lg shadow-lg border border-gray-300">
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+  
+ <!-- Team Section -->
+<div class="mt-12">
+  <h3 class="text-2xl font-extrabold text-gray-900 text-center">Our Team</h3>
+
+  <div class="mt-8 grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3">
+    
+    <!-- Member 1 -->
+    <div class="pt-6">
+      <div class="flow-root bg-gray-50 rounded-lg px-6 pb-8">
+        <div class="-mt-6 text-center">
+          <img src="doc2.jpg" alt="Dr. Meera Deshmukh" class="h-24 w-24 rounded-full mx-auto shadow-md object-cover">
+          <h3 class="mt-4 text-lg font-medium text-gray-900">Dr. Meera Deshmukh</h3>
+          <p class="mt-1 text-sm text-gray-500">Dermatologist, AIIMS Delhi</p>
+          <p class="mt-3 text-sm text-gray-600">
+            Over 12 years of experience treating diverse skin conditions across India.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Member 2 -->
+    <div class="pt-6">
+      <div class="flow-root bg-gray-50 rounded-lg px-6 pb-8">
+        <div class="-mt-6 text-center">
+          <img src="doc3.jpg" alt="Prof. Raghav Iyer" class="h-24 w-24 rounded-full mx-auto shadow-md object-cover">
+          <h3 class="mt-4 text-lg font-medium text-gray-900">Prof. Raghav Iyer</h3>
+          <p class="mt-1 text-sm text-gray-500">AI Specialist, IIT Bombay</p>
+          <p class="mt-3 text-sm text-gray-600">
+            Specializes in computer vision and deep learning in healthcare.
+          </p>
+        </div>
+      </div>
+    </div>
+
+  <!-- Member 3 -->
+<div class="pt-6">
+  <div class="flow-root bg-gray-50 rounded-lg px-6 pb-8">
+    <div class="-mt-6 text-center">
+      <img src="doc4.jpg" alt="Anjali Sharma" class="h-24 w-24 rounded-full mx-auto shadow-md object-cover">
+      <h3 class="mt-4 text-lg font-medium text-gray-900">Anjali Sharma</h3>
+      <p class="mt-1 text-sm text-gray-500">AI Dermatology Research Associate</p>
+      <p class="mt-3 text-sm text-gray-600">
+        Specializes in applying machine learning to enhance skin disease diagnosis accuracy.
+      </p>
+    </div>
+  </div>
+</div>
+
+
+  </div>
+</div>
+
+  
+      <!-- Clinical Advisory Board -->
+      <div class="mt-12">
+        <div class="bg-indigo-50 rounded-lg p-6">
+          <h3 class="text-xl font-bold text-gray-900">Clinical Advisory Board</h3>
+          <p class="mt-2 text-gray-600">
+            Our AI engine is continuously reviewed by doctors from reputed Indian institutions:
+          </p>
+          <ul class="mt-4 space-y-3 text-gray-600">
+            <li class="flex items-start">
+              <i class="fas fa-check text-indigo-500 mt-1 mr-2"></i>
+              <span>AIIMS, New Delhi</span>
+            </li>
+            <li class="flex items-start">
+              <i class="fas fa-check text-indigo-500 mt-1 mr-2"></i>
+              <span>Tata Memorial Hospital, Mumbai</span>
+            </li>
+            <li class="flex items-start">
+              <i class="fas fa-check text-indigo-500 mt-1 mr-2"></i>
+              <span>PGIMER, Chandigarh</span>
+            </li>
+            <li class="flex items-start">
+              <i class="fas fa-check text-indigo-500 mt-1 mr-2"></i>
+              <span>NIMHANS, Bengaluru</span>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+  
+        <!-- Contact Page -->
+<section id="contact-page" class="hidden py-12 animate-fade-in">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="lg:text-center">
+      <h2 class="text-base text-indigo-600 font-semibold tracking-wide uppercase">Contact Us</h2>
+      <p class="mt-2 text-3xl leading-8 font-extrabold tracking-tight text-gray-900 sm:text-4xl">
+        We'd Love to Hear From You
+      </p>
+      <p class="mt-4 max-w-2xl text-xl text-gray-500 lg:mx-auto">
+        Have questions about our AI-based skin check-up, doctor tie-ups, or anything else? Just reach out—we're here for you!
+      </p>
+    </div>
+
+    <div class="mt-12">
+      <div class="grid grid-cols-1 gap-8 lg:grid-cols-2">
+        <!-- Form -->
+        <div class="bg-white overflow-hidden shadow rounded-lg p-6">
+          <h3 class="text-lg font-medium text-gray-900">Send us a message</h3>
+          <form class="mt-6 space-y-6" onsubmit="return validateAndSend(event)">
+            <div>
+              <label for="name" class="block text-sm font-medium text-gray-700">Full Name</label>
+              <input type="text" id="name" name="name" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
+            </div>
+          
+            <div>
+              <label for="email" class="block text-sm font-medium text-gray-700">Email Address</label>
+              <input type="email" id="email" name="email" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
+            </div>
+          
+            <div>
+              <label for="subject" class="block text-sm font-medium text-gray-700">Subject</label>
+              <select id="subject" name="subject" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
+                <option value="">Select a subject</option>
+                <option>General Inquiry</option>
+                <option>Help with Skin Report</option>
+                <option>Doctor/Clinic Partnership</option>
+                <option>Press & Media</option>
+              </select>
+            </div>
+          
+            <div>
+              <label for="message" class="block text-sm font-medium text-gray-700">Message</label>
+              <textarea id="message" name="message" rows="4" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"></textarea>
+            </div>
+          
+            <div class="flex justify-end">
+              <button type="submit" class="ml-3 inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all">
+                Send Message
+              </button>
+            </div>
+          </form>
+        </div>
+
+        <!-- Contact Info -->
+        <div>
+          <div class="bg-white overflow-hidden shadow rounded-lg p-6 h-full">
+            <h3 class="text-lg font-medium text-gray-900">Contact Information</h3>
+            <div class="mt-6 space-y-7">
+              <div class="flex">
+                <i class="h-5 w-5 text-indigo-500 fas fa-map-marker-alt"></i>
+                <div class="ml-3 text-base text-gray-500">
+                  <p>401, Phoenix Tech Park</p>
+                  <p>LBS Road, Kurla West</p>
+                  <p>Mumbai, Maharashtra – 400070</p>
+                  <a href="https://goo.gl/maps/xyz" target="_blank" class="text-indigo-600 hover:underline text-sm">View on Google Maps</a>
+                </div>
+              </div>
+      
+              <div class="flex">
+                <i class="h-5 w-5 text-indigo-500 fas fa-phone-alt"></i>
+                <div class="ml-3 text-base text-gray-500">
+                  <p>+91 99202 12345</p>
+                  <p class="text-sm text-gray-400">Call or WhatsApp us anytime (10am–7pm)</p>
+                </div>
+              </div>
+      
+              <div class="flex">
+                <i class="h-5 w-5 text-indigo-500 fas fa-envelope"></i>
+                <div class="ml-3 text-base text-gray-500">
+                  <p>care@ai-derm.in</p>
+                  <p class="text-sm text-gray-400">Expect a reply within 24 hours</p>
+                </div>
+              </div>
+      
+              <div class="flex">
+                <i class="h-5 w-5 text-indigo-500 fas fa-handshake"></i>
+                <div class="ml-3 text-base text-gray-500">
+                  <p><strong>Partnerships:</strong> Interested in working with us?</p>
+                  <p class="text-sm text-gray-400">Drop a mail at <span class="text-indigo-600">collab@ai-derm.in</span></p>
+                </div>
+              </div>
+      
+              <div class="flex">
+                <i class="h-5 w-5 text-indigo-500 fas fa-language"></i>
+                <div class="ml-3 text-base text-gray-500">
+                  <p><strong>Available in:</strong></p>
+                  <p class="text-sm">English, Hindi, Marathi, Kannada</p>
+                </div>
+              </div>
+      
+              <div class="mt-8">
+                <h4 class="text-sm font-medium text-gray-900">Connect with us</h4>
+                <div class="mt-3 flex space-x-6">
+                  <a href="https://twitter.com" target="_blank" class="text-blue-600 hover:text-indigo-900 transition-colors">
+                    <i class="fab fa-twitter text-xl"></i>
+                  </a>
+                  <a href="https://linkedin.com" target="_blank" class="text-blue-600 hover:text-indigo-900 transition-colors">
+                    <i class="fab fa-linkedin-in text-xl"></i>
+                  </a>
+                  <a href="https://facebook.com" target="_blank" class="text-blue-600 hover:text-indigo-900 transition-colors">
+                    <i class="fab fa-facebook-f text-xl"></i>
+                  </a>
+                  <a href="https://instagram.com" target="_blank" class="text-blue-600 hover:text-indigo-900 transition-colors">
+                    <i class="fab fa-instagram text-xl"></i>
+                  </a>
+                </div>
+              </div>
+              
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- FAQ Section -->
+    <div class="mt-12">
+      <h3 class="text-2xl font-extrabold text-gray-900 text-center">Frequently Asked Questions</h3>
+
+      <div class="mt-6 bg-white shadow overflow-hidden sm:rounded-lg">
+        <div class="px-4 py-5 sm:p-6">
+          <dl class="space-y-6 divide-y divide-gray-200">
+            <div class="pt-6">
+              <dt class="text-lg">
+                <button type="button" class="text-left w-full flex justify-between items-start text-gray-400" onclick="toggleFAQ(1)">
+                  <span class="font-medium text-gray-900">Is my data safe and private?</span>
+                  <span class="ml-6 h-7 flex items-center" id="faq-1-arrow"><i class="fas fa-chevron-down"></i></span>
+                </button>
+              </dt>
+              <dd class="mt-2 pr-12 hidden" id="faq-1-answer">
+                <p class="text-base text-gray-500">
+                  100%! Your reports and images are encrypted and stored securely as per Indian data laws. We never share anything without your consent.
+                </p>
+              </dd>
+            </div>
+
+            <div class="pt-6">
+              <dt class="text-lg">
+                <button type="button" class="text-left w-full flex justify-between items-start text-gray-400" onclick="toggleFAQ(2)">
+                  <span class="font-medium text-gray-900">How accurate is your AI?</span>
+                  <span class="ml-6 h-7 flex items-center" id="faq-2-arrow"><i class="fas fa-chevron-down"></i></span>
+                </button>
+              </dt>
+              <dd class="mt-2 pr-12 hidden" id="faq-2-answer">
+                <p class="text-base text-gray-500">
+                  Our AI has shown 95%+ accuracy when benchmarked with top dermatologists across India. It’s a powerful tool to help you spot skin issues early.
+                </p>
+              </dd>
+            </div>
+
+            <div class="pt-6">
+              <dt class="text-lg">
+                <button type="button" class="text-left w-full flex justify-between items-start text-gray-400" onclick="toggleFAQ(3)">
+                  <span class="font-medium text-gray-900">Can I talk to a doctor directly?</span>
+                  <span class="ml-6 h-7 flex items-center" id="faq-3-arrow"><i class="fas fa-chevron-down"></i></span>
+                </button>
+              </dt>
+              <dd class="mt-2 pr-12 hidden" id="faq-3-answer">
+                <p class="text-base text-gray-500">
+                  Yes! After your scan, you can book appointments with verified dermatologists from Mumbai, Pune, Bengaluru, and more—right within our app.
+                </p>
+              </dd>
+            </div>
+
+            <div class="pt-6">
+              <dt class="text-lg">
+                <button type="button" class="text-left w-full flex justify-between items-start text-gray-400" onclick="toggleFAQ(4)">
+                  <span class="font-medium text-gray-900">Is this suitable for all skin types?</span>
+                  <span class="ml-6 h-7 flex items-center" id="faq-4-arrow"><i class="fas fa-chevron-down"></i></span>
+                </button>
+              </dt>
+              <dd class="mt-2 pr-12 hidden" id="faq-4-answer">
+                <p class="text-base text-gray-500">
+                  Absolutely. Our system is trained on diverse Indian skin tones and conditions, including pigmentation, acne, fungal infections, and more.
+                </p>
+              </dd>
+            </div>
+          </dl>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+   <!-- Footer -->
+<footer class="bg-gray-800 text-white">
+    <div class="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-8">
+            <!-- Services -->
+            <div>
+                <h3 class="text-sm font-semibold text-gray-300 tracking-wider uppercase">Services</h3>
+                <ul class="mt-4 space-y-4">
+                    <li><a href="#" class="text-base text-gray-400 hover:text-white">Skin Analysis</a></li>
+                    <li><a href="#" class="text-base text-gray-400 hover:text-white">Condition Library</a></li>
+                    <li><a href="#" class="text-base text-gray-400 hover:text-white">Dermatologist Finder</a></li>
+                    <li><a href="#" class="text-base text-gray-400 hover:text-white">Treatment Guidance</a></li>
+                </ul>
+            </div>
+
+            <!-- Company -->
+            <div>
+                <h3 class="text-sm font-semibold text-gray-300 tracking-wider uppercase">Company</h3>
+                <ul class="mt-4 space-y-4">
+                    <li><a href="#about" onclick="showPage('about')" class="text-base text-gray-400 hover:text-white">About Us</a></li>
+                    <li><a href="#" class="text-base text-gray-400 hover:text-white">Careers</a></li>
+                    <li><a href="#" class="text-base text-gray-400 hover:text-white">Press</a></li>
+                    <li><a href="#" class="text-base text-gray-400 hover:text-white">Blog</a></li>
+                </ul>
+            </div>
+
+            <!-- Legal -->
+            <div>
+                <h3 class="text-sm font-semibold text-gray-300 tracking-wider uppercase">Legal</h3>
+                <ul class="mt-4 space-y-4">
+                    <li><a href="#" class="text-base text-gray-400 hover:text-white">Privacy</a></li>
+                    <li><a href="#" class="text-base text-gray-400 hover:text-white">Terms</a></li>
+                    <li><a href="#" class="text-base text-gray-400 hover:text-white">HIPAA Compliance</a></li>
+                    <li><a href="#" class="text-base text-gray-400 hover:text-white">Medical Disclaimer</a></li>
+                </ul>
+            </div>
+
+            <!-- Contact Info -->
+            <div>
+                <h3 class="text-sm font-semibold text-gray-300 tracking-wider uppercase">Get in Touch</h3>
+                <div class="mt-4 space-y-2 text-base text-gray-400">
+                    <p>401, Phoenix Tech Park</p>
+                    <p>LBS Road, Kurla West</p>
+                    <p>Mumbai, Maharashtra – 400070</p>
+                    <a href="https://maps.google.com" target="_blank" class="hover:text-white underline">View on Google Maps</a>
+                    <p class="mt-2">care@ai-derm.in</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bottom Bar -->
+        <div class="mt-12 border-t border-gray-700 pt-8 flex flex-col md:flex-row justify-between items-center">
+            <div class="flex space-x-6">
+                <a href="#" class="text-gray-400 hover:text-white">
+                    <i class="fab fa-twitter text-xl"></i>
+                </a>
+                <a href="#" class="text-gray-400 hover:text-white">
+                    <i class="fab fa-facebook-f text-xl"></i>
+                </a>
+                <a href="#" class="text-gray-400 hover:text-white">
+                    <i class="fab fa-instagram text-xl"></i>
+                </a>
+                <a href="#" class="text-gray-400 hover:text-white">
+                    <i class="fab fa-linkedin-in text-xl"></i>
+                </a>
+            </div>
+            <p class="mt-4 md:mt-0 text-base text-gray-400">
+                &copy; 2025 AI-DERM. All rights reserved.
+            </p>
+        </div>
+    </div>
+</footer>
+
+
+</body>
+<!-- Script Reference -->
+<script src="script.js"></script>
+</html>
+
+</html>

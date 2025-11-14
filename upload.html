@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>AI-DERM | Advanced Skin Disease Detection</title>
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Font Awesome for Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+
+  <!-- Custom Styles -->
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    /* Hide navbar and footer when printing */
+    @media print {
+      nav, footer, button, #dermatologist-modal {
+        display: none !important;
+      }
+
+      body {
+        background: #fff;
+      }
+
+      #results-page {
+        display: block !important;
+      }
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col">
+
+  <!-- Navigation -->
+  <nav class="bg-indigo-600 shadow-sm sticky top-0 z-80">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between h-16">
+        <!-- Navigation Links -->
+        <div class="hidden md:flex md:items-center md:justify-center md:space-x-20 w-full">
+          <a href="#logo" class="nav-link text-white text-lg font-semibold hover:text-gray-300 px-25 py-2 rounded-md">AI-DERM</a>
+          <a href="#home" class="nav-link text-white text-lg font-semibold hover:text-gray-300 px-8 py-2 rounded-md">Home</a>
+          <a href="#features" class="nav-link text-white text-lg font-semibold hover:text-gray-300 px-8 py-2 rounded-md">Features</a>
+          <a href="#about" class="nav-link text-white text-lg font-semibold hover:text-gray-300 px-10 py-2 rounded-md">About</a>
+          <a href="#contact" class="nav-link text-white text-lg font-semibold hover:text-gray-300 px-8 py-2 rounded-md">Contact</a>
+          <a href="#logout" class="nav-link text-white text-lg font-semibold hover:text-gray-300 px-8 py-2 rounded-md">Logout</a>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Main Content -->
+  <main class="flex-grow max-w-6xl mx-auto mt-10 px-4">
+
+    <!-- Upload Section -->
+    <section class="bg-white p-4 rounded-lg shadow-lg text-center max-w-md mx-auto">
+      <h1 class="text-xl font-bold text-indigo-600 mb-3">Upload a Skin Image for Analysis</h1>
+      <form id="uploadForm" enctype="multipart/form-data">
+        <input type="file" name="image" accept="image/*" class="block mx-auto my-3" required>
+        <button type="submit" class="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700">Analyze Image</button>
+      </form>
+      <div id="loading" class="hidden mt-4 text-gray-600">Analyzing image, please wait...</div>
+    </section>
+
+    <!-- Analysis Results Page -->
+    <section id="results-page" class="hidden py-10 animate-fade-in  w-full flex justify-center">
+      <div class="w-full max-w-6xl px-4 sm:px-6 lg:px-8">
+        <div class="bg-white shadow-lg rounded-lg overflow-hidden">
+          <div class="px-9 py-4 border-b border-gray-200">
+            <h3 class="text-xl md:text-2xl font-bold text-gray-900">Your Analysis Results</h3>
+            <p class="mt-1 text-sm text-gray-500">Generated on <span id="analysis-date"></span></p>
+          </div>
+
+          <div class="px-6 py-6 flex flex-col md:flex-row gap-6">
+            <div class="flex-shrink-0 flex justify-center items-center md:w-1/3">
+              <img id="analyzed-image" src="#" alt="Analyzed skin image" class="w-full max-w-md md:max-w-full rounded-lg shadow-sm">
+            </div>
+
+            <div class="flex-1 flex flex-col justify-between md:w-2/3">
+              <div>
+                <h4 class="text-sm font-bold text-gray-700 mb-2">Predicted Condition</h4>
+                <div class="rounded-md overflow-hidden bg-white shadow p-4">
+                  <div class="flex items-start">
+                    <div class="flex-shrink-0">
+                      <div class="flex items-center justify-center h-12 w-12 rounded-md bg-indigo-100 text-indigo-600">
+                        <i class="fas fa-diagnoses text-xl"></i>
+                      </div>
+                    </div>
+                    <div class="ml-4">
+                      <h4 class="text-lg font-medium text-gray-900" id="primary-condition">Disease Name</h4>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="flex justify-end mt-6 gap-4">
+                <button onclick="openModal()" class="inline-flex items-center px-4 py-2 text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-400">
+                  Find Doctor
+                </button>
+                <button onclick="window.print()" class="inline-flex items-center px-4 py-2 text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-400">
+                  Print
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Dermatologist Modal -->
+    <div id="dermatologist-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black bg-opacity-50">
+      <div class="glass-modal rounded-xl overflow-hidden transform transition-all sm:max-w-lg sm:w-full bg-white p-6 max-h-[90vh] overflow-y-auto">
+        <div class="flex justify-between items-center border-b pb-2">
+          <h3 class="text-lg leading-6 font-medium text-gray-900">Find a Dermatologist</h3>
+          <button onclick="closeModal()" class="text-gray-400 hover:text-gray-600 text-xl font-bold">&times;</button>
+        </div>
+
+        <!-- Location input + search -->
+        <div id="locationBox" class="mt-4">
+          <input type="text" id="locationInput" placeholder="Enter your city or pincode" class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring focus:border-indigo-300">
+          <button onclick="searchDermatologists()" class="mt-3 w-full bg-indigo-600 text-white py-2 px-4 rounded hover:bg-indigo-700">Search</button>
+        </div>
+
+        <!-- Doctors list -->
+        <div id="resultsContainer" class="mt-4 grid gap-4"></div>
+
+        <!-- Appointment form -->
+        <div id="appointmentForm" class="mt-4 hidden p-4 bg-gray-100 rounded-lg">
+          <h4 class="text-md font-bold mb-2" id="appointmentDoctorName"></h4>
+          <form id="bookAppointmentForm">
+            <input type="text" id="patientName" placeholder="Patient Name" class="w-full px-3 py-2 mb-2 border rounded-lg" required>
+            <input type="email" id="patientEmail" placeholder="Patient Email" class="w-full px-3 py-2 mb-2 border rounded-lg" required>
+            <input type="tel" id="patientPhone" placeholder="Patient Phone" class="w-full px-3 py-2 mb-2 border rounded-lg" required>
+            <input type="text" id="patientPincode" placeholder="Pincode (5-6 digits)" class="w-full px-3 py-2 mb-2 border rounded-lg" required>
+            <input type="date" id="appointmentDate" class="w-full px-3 py-2 mb-2 border rounded-lg" required>
+            <select id="appointmentTime" class="w-full px-3 py-2 mb-2 border rounded-lg" required>
+              <option value="">Select a time slot</option>
+            </select>
+            <input type="number" id="appointmentAmount" placeholder="Consultation Amount (₹)" value="1000" class="w-full px-3 py-2 mb-2 border rounded-lg" required readonly>
+            <div class="flex justify-between mt-2">
+              <button type="button" onclick="backToDoctors()" class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600">Back</button>
+              <button type="submit" class="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700">Book Appointment</button>
+            </div>
+          </form>
+        </div>
+
+        <!-- Payment / Thank You -->
+        <div id="payment-success" class="hidden mt-4 p-6 bg-green-100 rounded-lg text-center">
+          <h2 class="text-2xl font-bold text-green-700 mb-2">Payment Completed Successfully!</h2>
+          <p class="mb-4">Thank you for booking your appointment.</p>
+          <button id="logoutBtn" class="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700">Click here to Exit</button>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- Footer -->
+  <footer class="bg-gray-800 text-white mt-auto">
+    <div class="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-8">
+        <div>
+          <h3 class="text-sm font-semibold text-gray-300 tracking-wider uppercase">Services</h3>
+          <ul class="mt-4 space-y-4">
+            <li><a href="#" class="text-base text-gray-400 hover:text-white">Skin Analysis</a></li>
+            <li><a href="#" class="text-base text-gray-400 hover:text-white">Condition Library</a></li>
+            <li><a href="#" class="text-base text-gray-400 hover:text-white">Dermatologist Finder</a></li>
+            <li><a href="#" class="text-base text-gray-400 hover:text-white">Treatment Guidance</a></li>
+          </ul>
+        </div>
+        <div>
+          <h3 class="text-sm font-semibold text-gray-300 tracking-wider uppercase">Company</h3>
+          <ul class="mt-4 space-y-4">
+            <li><a href="#about" class="text-base text-gray-400 hover:text-white">About Us</a></li>
+            <li><a href="#" class="text-base text-gray-400 hover:text-white">Careers</a></li>
+            <li><a href="#" class="text-base text-gray-400 hover:text-white">Press</a></li>
+            <li><a href="#" class="text-base text-gray-400 hover:text-white">Blog</a></li>
+          </ul>
+        </div>
+        <div>
+          <h3 class="text-sm font-semibold text-gray-300 tracking-wider uppercase">Legal</h3>
+          <ul class="mt-4 space-y-4">
+            <li><a href="#" class="text-base text-gray-400 hover:text-white">Privacy</a></li>
+            <li><a href="#" class="text-base text-gray-400 hover:text-white">Terms</a></li>
+            <li><a href="#" class="text-base text-gray-400 hover:text-white">HIPAA Compliance</a></li>
+            <li><a href="#" class="text-base text-gray-400 hover:text-white">Medical Disclaimer</a></li>
+          </ul>
+        </div>
+        <div>
+          <h3 class="text-sm font-semibold text-gray-300 tracking-wider uppercase">Get in Touch</h3>
+          <div class="mt-4 space-y-2 text-base text-gray-400">
+            <p>401, Phoenix Tech Park</p>
+            <p>LBS Road, Kurla West</p>
+            <p>Mumbai, Maharashtra – 400070</p>
+            <a href="https://maps.google.com" target="_blank" class="hover:text-white underline">View on Google Maps</a>
+            <p class="mt-2">care@ai-derm.in</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="mt-12 border-t border-gray-700 pt-8 flex flex-col md:flex-row justify-between items-center">
+        <div class="flex space-x-6">
+          <a href="#" class="text-gray-400 hover:text-white"><i class="fab fa-twitter text-xl"></i></a>
+          <a href="#" class="text-gray-400 hover:text-white"><i class="fab fa-facebook-f text-xl"></i></a>
+          <a href="#" class="text-gray-400 hover:text-white"><i class="fab fa-instagram text-xl"></i></a>
+          <a href="#" class="text-gray-400 hover:text-white"><i class="fab fa-linkedin-in text-xl"></i></a>
+        </div>
+        <p class="mt-4 md:mt-0 text-base text-gray-400">&copy; 2025 AI-DERM. All rights reserved.</p>
+      </div>
+    </div>
+  </footer>
+
+<script>
+const today = new Date();
+document.getElementById("analysis-date").textContent = today.toLocaleDateString();
+
+// Upload form
+document.getElementById("uploadForm").addEventListener("submit", async function(e){
+  e.preventDefault();
+  const formData = new FormData(this);
+
+  // Show loading
+  document.getElementById("loading").classList.remove("hidden");
+
+  // Send request to backend
+  const response = await fetch("http://127.0.0.1:5000/predict", { method:"POST", body:formData });
+  const data = await response.json();
+
+  // Hide loading
+  document.getElementById("loading").classList.add("hidden");
+
+  // Hide upload section
+  document.querySelector("section.bg-white").classList.add("hidden");
+
+  // Show results section
+  const resultsPage = document.getElementById("results-page");
+  resultsPage.classList.remove("hidden");
+
+  // Fill results
+  document.getElementById("analyzed-image").src = URL.createObjectURL(formData.get("image"));
+  document.getElementById("primary-condition").textContent = data.disease;
+});
+
+// Modal open/close
+function openModal() {
+  document.getElementById("dermatologist-modal").classList.remove("hidden");
+  document.getElementById("dermatologist-modal").classList.add("flex");
+  document.getElementById("locationBox").classList.remove("hidden");
+  document.getElementById("resultsContainer").innerHTML = "";
+  document.getElementById("appointmentForm").classList.add("hidden");
+  document.getElementById("payment-success").classList.add("hidden");
+}
+
+function closeModal() {
+  document.getElementById("dermatologist-modal").classList.add("hidden");
+  document.getElementById("dermatologist-modal").classList.remove("flex");
+}
+
+function searchDermatologists() {
+  const location = document.getElementById("locationInput").value.trim();
+  const resultsContainer = document.getElementById("resultsContainer");
+
+  // Patterns
+  const pincodePattern = /^[1-9][0-9]{5}$/;       // Indian 6-digit pincode
+  const cityPattern = /^[a-zA-Z\s]{2,}$/;         // City name with letters & spaces, at least 2 chars
+
+  if (!location) {
+    resultsContainer.innerHTML = `<p class="text-red-500">Please enter a city or pincode.</p>`;
+    return;
+  }
+
+  if (!pincodePattern.test(location) && !cityPattern.test(location)) {
+    resultsContainer.innerHTML = `<p class="text-red-500">Please enter a valid city name or a 6-digit Indian pincode.</p>`;
+    return;
+  }
+
+  const dermatologists = [
+    { name:"Dr. Neha Sharma", clinic:"SkinCare Clinic", distance:"2.3 km" },
+    { name:"Dr. Ramesh Patil", clinic:"ClearSkin Hospital", distance:"3.1 km" },
+    { name:"Dr. Aarti Mehra", clinic:"DermaPlus Clinic", distance:"4.0 km" }
+  ];
+
+  let html = '';
+  dermatologists.forEach(doc => {
+    html += `<div class="flex justify-between items-center bg-white p-3 rounded shadow">
+      <div><span class="font-bold">${doc.name}</span><br><span class="text-gray-500 text-sm">${doc.clinic} – ${doc.distance}</span></div>
+      <button onclick="showAppointmentForm('${doc.name}')" class="bg-indigo-600 text-white px-3 py-1 rounded hover:bg-indigo-700 text-sm">Book Appointment</button>
+    </div>`;
+  });
+  resultsContainer.innerHTML = html;
+  document.getElementById("appointmentForm").classList.add("hidden");
+}
+
+// Show appointment form
+function showAppointmentForm(doctorName) {
+  document.getElementById("resultsContainer").innerHTML="";
+  document.getElementById("locationBox").classList.add("hidden");
+  const form = document.getElementById("appointmentForm");
+  form.classList.remove("hidden");
+  document.getElementById("appointmentDoctorName").textContent = `Booking Appointment with ${doctorName}`;
+  form.scrollIntoView({ behavior:"smooth", block:"start" });
+
+  const today = new Date();
+  const minDate = today.toISOString().split('T')[0];
+  const maxDate = new Date(today.getTime()+28*24*60*60*1000).toISOString().split('T')[0];
+  document.getElementById("appointmentDate").setAttribute('min',minDate);
+  document.getElementById("appointmentDate").setAttribute('max',maxDate);
+}
+
+// Back to doctors list
+function backToDoctors() {
+  document.getElementById("appointmentForm").classList.add("hidden");
+  document.getElementById("locationBox").classList.remove("hidden");
+  searchDermatologists();
+}
+
+// Add time slots
+document.getElementById("appointmentDate").addEventListener("change", function(){
+  const slots = ["10:00-11:00 (Morning)","14:00-15:00 (Afternoon)","19:00-20:00 (Evening)"];
+  const select = document.getElementById("appointmentTime");
+  select.innerHTML='<option value="">Select a time slot</option>';
+  slots.forEach(slot => { 
+    const option = document.createElement("option"); 
+    option.value=slot; 
+    option.textContent=slot; 
+    select.appendChild(option); 
+  });
+});
+
+// Booking form with proper Indian validations
+document.getElementById("bookAppointmentForm").addEventListener("submit", function(e){
+  e.preventDefault();
+
+  const name = document.getElementById("patientName").value.trim();
+  const email = document.getElementById("patientEmail").value.trim();
+  const phone = document.getElementById("patientPhone").value.trim();
+  const pincode = document.getElementById("patientPincode").value.trim();
+  const date = document.getElementById("appointmentDate").value;
+  const time = document.getElementById("appointmentTime").value;
+
+  // Email validation
+  const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if(!emailPattern.test(email)){
+    alert("Please enter a valid email address.");
+    return;
+  }
+
+  // Indian mobile number validation (10 digits starting 6-9)
+  const phonePattern = /^[6-9][0-9]{9}$/;
+  if(!phonePattern.test(phone)){
+    alert("Please enter a valid 10-digit Indian mobile number starting with 6-9.");
+    return;
+  }
+
+  // Indian pincode validation (exactly 6 digits)
+  const pincodePattern = /^[1-9][0-9]{5}$/;
+  if(!pincodePattern.test(pincode)){
+    alert("Please enter a valid 6-digit Indian pincode.");
+    return;
+  }
+
+  if(!name || !date || !time){ 
+    alert("Please fill all fields"); 
+    return; 
+  }
+
+  // Hide appointment form
+  document.getElementById("appointmentForm").classList.add("hidden");
+
+  // Show payment / thank-you
+  const successDiv = document.getElementById("payment-success");
+  successDiv.classList.remove("hidden");
+  successDiv.scrollIntoView({ behavior:"smooth" });
+
+  document.getElementById("bookAppointmentForm").reset();
+
+// Logout / Exit button
+document.getElementById("logoutBtn").onclick = () => {
+  closeModal();        // Close the dermatologist modal
+  location.reload();   // Refresh the page to reset upload.html
+};
+
+
+});
+</script>
+
+</body>
+</html>
